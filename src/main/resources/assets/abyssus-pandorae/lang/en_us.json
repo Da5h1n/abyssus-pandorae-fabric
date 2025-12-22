@@ -1,6 +1,7 @@
 {
-  "abyssus-pandorae.screen.choose_faith": "Choose Faith Screen",
-  "abyssus-pandorae.gui.select": "Select",
-  "abyssus-pandorae.gui.previous": "Previous",
-  "abyssus-pandorae.gui.next": "Next"
+  "abyssus-pandorae.screen.choose_kingdom": "Choose Kingdom Screen",
+  "abyssus-pandorae.screen.choose_kingdom.title": "Choose your Kingdom.",
+  "abyssus-pandorae.screen.choose_kingdom.left_kingdom": "Left Kingdom",
+  "abyssus-pandorae.screen.choose_kingdom.center_kingdom": "Center Kingdom",
+  "abyssus-pandorae.screen.choose_kingdom.right_kingdom": "Right Kingdom"
 }

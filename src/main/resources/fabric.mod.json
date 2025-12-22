@@ -1,41 +1,41 @@
 {
-	"schemaVersion": 1,
-	"id": "abyssus-pandorae",
-	"version": "${version}",
-	"name": "Abyssus Pandorae",
-	"description": "Adds Kingdoms, Faith, Soul and custom abilities for a better experience!",
-	"authors": [
-		"Da5h1n",
-        "Midnightmuffet",
-        "FunFi",
-        "Horatio151"
-	],
-	"contact": {
-		"homepage": "https://modrinth.com/project/abyssus-pandorae",
-		"sources": "https://github.com/Da5h1n/abyssus-pandorae-fabric",
-        "issues": "https://github.com/Da5h1n/abyssus-pandorae-fabric/issues"
-	},
-	"license": "All-Rights-Reserved",
-	"icon": "assets/abyssus-pandorae/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"abyssus.pandorae.AbyssusPandorae"
-		],
-		"fabric-datagen": [
-			"abyssus.pandorae.AbyssusPandoraeDataGenerator"
-		],
-        "client": [
-          "abyssus.pandorae.AbyssusPandoraeClient"
-        ]
-	},
-	"mixins": [
-		"abyssus-pandorae.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.18.3",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "abyssus-pandorae",
+  "version": "${version}",
+  "name": "Abyssus Pandorae",
+  "description": "Adds Kingdoms, Faith, Soul and custom abilities for a better experience!",
+  "authors": [
+    "Da5h1n",
+    "Midnightmuffet",
+    "FunFi",
+    "Horatio151"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/project/abyssus-pandorae",
+    "sources": "https://github.com/Da5h1n/abyssus-pandorae-fabric",
+    "issues": "https://github.com/Da5h1n/abyssus-pandorae-fabric/issues"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/abyssus-pandorae/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "abyssus.pandorae.AbyssusPandorae"
+    ],
+    "fabric-datagen": [
+      "abyssus.pandorae.AbyssusPandoraeDataGenerator"
+    ],
+    "client": [
+      "abyssus.pandorae.AbyssusPandoraeClient"
+    ]
+  },
+  "mixins": [
+    "abyssus-pandorae.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.3",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
 }
