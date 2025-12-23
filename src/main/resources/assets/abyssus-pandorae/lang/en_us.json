@@ -1,7 +1,9 @@
 {
   "abyssus-pandorae.screen.choose_kingdom": "Choose Kingdom Screen",
   "abyssus-pandorae.screen.choose_kingdom.title": "Choose your Kingdom.",
-  "abyssus-pandorae.screen.choose_kingdom.left_kingdom": "Left Kingdom",
-  "abyssus-pandorae.screen.choose_kingdom.center_kingdom": "Center Kingdom",
-  "abyssus-pandorae.screen.choose_kingdom.right_kingdom": "Right Kingdom"
+
+  "abyssus-pandorae.kingdom.none": "U BROKE MOD???",
+  "abyssus-pandorae.kingdom.left_kingdom": "Left Kingdom",
+  "abyssus-pandorae.kingdom.center_kingdom": "Center Kingdom",
+  "abyssus-pandorae.kingdom.right_kingdom": "Right Kingdom"
 }
