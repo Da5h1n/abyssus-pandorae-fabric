@@ -2,9 +2,11 @@ package abyssus.pandorae.networking;
 
 import abyssus.pandorae.component.Kingdom;
 import abyssus.pandorae.component.ModComponents;
+import abyssus.pandorae.util.KingdomTagManager;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -21,6 +23,9 @@ public class ModNetworking {
                 // Save the data to Cardinal Components
                 ModComponents.KINGDOM.get(context.player()).setKingdom(selectedKingdom);
 
+                ServerPlayerEntity player = context.player();
+                KingdomTagManager.updatePlayerDisplay(player, selectedKingdom);
+
                 // send a message to the player confirming it worked
                 context.player().sendMessage(Text.literal("You have joined the ").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
 
@@ -35,6 +40,8 @@ public class ModNetworking {
             server.execute(() -> {
                 var player = handler.getPlayer();
                 Kingdom currentKingdom = ModComponents.KINGDOM.get(player).getKingdom();
+
+                KingdomTagManager.updatePlayerDisplay(player, currentKingdom);
 
                 // If they havent picked a kingdom (the default "none"), tell them to open the screen
                 if (currentKingdom == Kingdom.NONE) {

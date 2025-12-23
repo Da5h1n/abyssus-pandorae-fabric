@@ -4,6 +4,7 @@ import abyssus.pandorae.component.Kingdom;
 import abyssus.pandorae.component.KingdomComponent;
 import abyssus.pandorae.component.ModComponents;
 import abyssus.pandorae.component.SoulState;
+import abyssus.pandorae.util.KingdomTagManager;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -38,6 +39,7 @@ public class ModCommands {
                                         try {
                                             Kingdom kingdom = Kingdom.valueOf(input);
                                             ModComponents.KINGDOM.get(target).setKingdom(kingdom);
+                                            KingdomTagManager.updatePlayerDisplay(target, kingdom);
 
                                             // Text.translatable as feedback
                                             context.getSource().sendFeedback(() -> Text.literal("Set kingdom for " + target.getName().getString() + " to ").append(Text.translatable(kingdom.getTranslationKey())),true);
