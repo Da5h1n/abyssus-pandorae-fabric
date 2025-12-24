@@ -5,5 +5,13 @@
   "abyssus-pandorae.kingdom.none": "U BROKE MOD???",
   "abyssus-pandorae.kingdom.left_kingdom": "Left Kingdom",
   "abyssus-pandorae.kingdom.center_kingdom": "Center Kingdom",
-  "abyssus-pandorae.kingdom.right_kingdom": "Right Kingdom"
+  "abyssus-pandorae.kingdom.right_kingdom": "Right Kingdom",
+
+  "key.category.minecraft.key.category_abyssus_pandorae": "Abyssus Pandorae",
+  "key.abyssus_pandorae.open_kingdom": "DEBUG SELECT KINGDOM",
+  "key.abyssus_pandorae.open_stats": "Open Skill Tree",
+
+  "key.category.abyssus.abilities": "Abyssus Abilities",
+  "key.abyssus.slot_1": "Primary Ability Slot",
+  "key.abyssus.slot_2": "Secondary Ability Slot"
 }

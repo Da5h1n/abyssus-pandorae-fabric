@@ -1,0 +1,32 @@
+{
+  "abilities": [
+    {
+      "id": "slot_1",
+      "name": "Fireball",
+      "cost": 10,
+      "prerequisites": [],
+      "action_type": "FIRE"
+    },
+    {
+      "id": "slot_2",
+      "name": "Flame Cloak",
+      "cost": 25,
+      "prerequisites": ["slot_1"],
+      "action_type": "CLOAK"
+    },
+    {
+      "id": "slot_3",
+      "name": "Flame Wall",
+      "cost": 20,
+      "prerequisites": ["slot_1"],
+      "action_type": "WALL"
+    },
+    {
+      "id": "slot_4",
+      "name": "Flame Pillar",
+      "cost": 25,
+      "prerequisites": ["slot_1","slot_2"],
+      "action_type": "AOE"
+    }
+  ]
+}

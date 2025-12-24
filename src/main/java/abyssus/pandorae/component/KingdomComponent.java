@@ -1,11 +1,17 @@
 package abyssus.pandorae.component;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.MathHelper;
 import org.ladysnake.cca.api.v3.component.ComponentV3;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class KingdomComponent implements ComponentV3 {
 
@@ -17,6 +23,12 @@ public class KingdomComponent implements ComponentV3 {
 
     public SoulState getSoulState() { return null; }
     public void setSoulState(SoulState state) { }
+
+    List<String> getPurchasedAbilities() {return null;}
+
+    public void purchaseAbility(String id) {}
+
+    public boolean hasAbility(String id) {return false;}
 
     @Override
     public void readData(ReadView readView) {
@@ -31,9 +43,10 @@ public class KingdomComponent implements ComponentV3 {
 
 class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedComponent {
     private Kingdom kingdom = Kingdom.NONE;
-    private int faith = 1; // 0 to 250 with 1 default
-    private SoulState SoulState = abyssus.pandorae.component.SoulState.PROTECTED; // Protected , Fractured , ReKindled , Incurable
-
+    private int faith = 1; // 0 to 200 with 1 default
+    private SoulState soulState = abyssus.pandorae.component.SoulState.PROTECTED; // Protected , Fractured , ReKindled , Incurable
+    //List to store purchased IDs
+    private final List<String> purchasedAbilities = new ArrayList<>();
     private final PlayerEntity player;
 
     public PlayerKingdomComponent(PlayerEntity player) {
@@ -59,28 +72,52 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
     }
 
     @Override
-    public SoulState getSoulState() {return SoulState;}
+    public SoulState getSoulState() {return soulState;}
     @Override
     public void setSoulState(SoulState state) {
-        this.SoulState = state;
+        this.soulState = state;
         ModComponents.KINGDOM.sync(this.player);
     }
 
     @Override
+    public List<String> getPurchasedAbilities() {
+        return new ArrayList<>(purchasedAbilities); //return copy
+    }
+
+    @Override
+    public void purchaseAbility(String id) {
+        if (!purchasedAbilities.contains(id)) {
+            purchasedAbilities.add(id);
+            ModComponents.KINGDOM.sync(this.player);
+        }
+    }
+
+    @Override
+    public boolean hasAbility(String id) {
+        return purchasedAbilities.contains(id);
+    }
+
+    @Override
     public void readData(ReadView view) {
-        // "kingdom_id" is the key in the save file. "none" is the default if not found.
         this.kingdom = Kingdom.valueOf(view.getString("kingdom_id", Kingdom.NONE.name()));
         this.faith = view.getInt("faith", 1);
-        this.SoulState = SoulState.valueOf(view.getString("soul_state", abyssus.pandorae.component.SoulState.PROTECTED.name()));
+        this.soulState = SoulState.valueOf(view.getString("soul_state", SoulState.PROTECTED.name()));
+
+        purchasedAbilities.clear();
+        String abilityString = view.getString("abilities_list", "");
+        if (!abilityString.isEmpty()) {
+            purchasedAbilities.addAll(Arrays.asList(abilityString.split(",")));
+        }
     }
 
     @Override
     public void writeData(WriteView view) {
-        // Saves the string to the player's data
         view.putString("kingdom_id", this.kingdom.name());
         view.putInt("faith", this.faith);
-        // Save the Enum name ("PROTECTED")
-        view.putString("soul_state", this.SoulState.name());
+        view.putString("soul_state", this.soulState.name());
+        // save list as comma-seperated string
+        view.putString("abilities_list", String.join(",", purchasedAbilities));
     }
+
 }
 

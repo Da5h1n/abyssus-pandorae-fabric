@@ -1,0 +1,18 @@
+{
+  "abilities": [
+    {
+      "id": "slot_1",
+      "name": "Divine Shield",
+      "cost": 10,
+      "prerequisites": [],
+      "action_type": "SHIELD"
+    },
+    {
+      "id": "slot_2",
+      "name": "Divine Light",
+      "cost": 20,
+      "prerequisites": ["slot_1"],
+      "action_type": "Light"
+    }
+  ]
+}

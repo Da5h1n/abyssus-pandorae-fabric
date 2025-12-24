@@ -8,6 +8,7 @@ import net.minecraft.util.StringIdentifiable;
 
 public enum Kingdom implements StringIdentifiable {
 
+
     NONE("none","abyssus-pandorae.kingdom.none", Formatting.GRAY),
     LEFT("left","abyssus-pandorae.kingdom.left_kingdom", Formatting.RED),
     CENTER("center","abyssus-pandorae.kingdom.center_kingdom", Formatting.GREEN),
