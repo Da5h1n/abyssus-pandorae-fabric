@@ -25,6 +25,18 @@ public class AbilityKeybinds {
         bindSlot("slot_2", GLFW.GLFW_KEY_B);
         bindSlot("slot_3", GLFW.GLFW_KEY_N);
         bindSlot("slot_4", GLFW.GLFW_KEY_M);
+        bindSlot("slot_5", GLFW.GLFW_KEY_L);
+        bindSlot("slot_6", GLFW.GLFW_KEY_K);
+        bindSlot("slot_7", GLFW.GLFW_KEY_T);
+        bindSlot("slot_8", GLFW.GLFW_KEY_Y);
+        bindSlot("slot_9", GLFW.GLFW_KEY_F);
+        bindSlot("slot_10", GLFW.GLFW_KEY_Z);
+        bindSlot("slot_11", GLFW.GLFW_KEY_C);
+        bindSlot("slot_12", GLFW.GLFW_KEY_X);
+        bindSlot("slot_13", GLFW.GLFW_KEY_SLASH);
+        bindSlot("slot_14", GLFW.GLFW_KEY_BACKSLASH);
+        bindSlot("slot_15", GLFW.GLFW_KEY_SEMICOLON);
+        bindSlot("slot_16", GLFW.GLFW_KEY_SEMICOLON);
     }
 
     private static void bindSlot(String id, int defaultKey) {

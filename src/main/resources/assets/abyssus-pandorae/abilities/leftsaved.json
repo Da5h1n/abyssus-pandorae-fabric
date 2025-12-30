@@ -5,7 +5,6 @@
       "name": "slot_1",
       "cost": 10,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": "FIRE"
     },
     {
@@ -13,7 +12,6 @@
       "name": "slot_2",
       "cost": 25,
       "prerequisites": ["slot_1"],
-      "conflicts": [],
       "action_type": "CLOAK"
     },
     {
@@ -21,7 +19,6 @@
       "name": "slot_3",
       "cost": 20,
       "prerequisites": ["slot_1"],
-      "conflicts": [],
       "action_type": "WALL"
     },
     {
@@ -29,39 +26,34 @@
       "name": "slot_4",
       "cost": 25,
       "prerequisites": ["slot_1","slot_2"],
-      "conflicts": [],
       "action_type": "AOE"
     },
     {
       "id": "slot_5",
       "name": "Harpy",
       "cost": 25,
-      "prerequisites": ["slot_6"],
-      "conflicts": ["slot_7", "slot_8"],
+      "prerequisites": [],
       "action_type": ""
     },
     {
       "id": "slot_6",
       "name": "slot_6",
       "cost": 25,
-      "prerequisites": ["slot_3"],
-      "conflicts": [],
+      "prerequisites": [],
       "action_type": ""
     },
     {
       "id": "slot_7",
       "name": "Bat",
       "cost": 25,
-      "prerequisites": ["slot_3"],
-      "conflicts": ["slot_5", "slot_8"],
+      "prerequisites": [],
       "action_type": ""
     },
     {
       "id": "slot_8",
       "name": "Flying Squirrel",
       "cost": 25,
-      "prerequisites": ["slot_3"],
-      "conflicts": ["slot_5", "slot_7"],
+      "prerequisites": [],
       "action_type": ""
     },
     {
@@ -69,7 +61,6 @@
       "name": "Total Aerokinesis",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -77,7 +68,6 @@
       "name": "slot_10",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -85,7 +75,6 @@
       "name": "Storm",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -93,7 +82,6 @@
       "name": "Tornado",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -101,7 +89,6 @@
       "name": "Fog",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -109,7 +96,6 @@
       "name": "Wind Spirit",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -117,7 +103,6 @@
       "name": "Banshee",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     },
     {
@@ -125,7 +110,6 @@
       "name": "slot_16",
       "cost": 25,
       "prerequisites": [],
-      "conflicts": [],
       "action_type": ""
     }
   ]

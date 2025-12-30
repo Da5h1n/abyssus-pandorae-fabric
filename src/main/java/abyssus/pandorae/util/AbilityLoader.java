@@ -39,4 +39,12 @@ public class AbilityLoader {
             return new ArrayList<>();
         }
     }
+
+    public static int getCost(String id, List<AbilityData> abilityList) {
+        return abilityList.stream()
+                .filter(a -> a.id().equals(id))
+                .mapToInt(AbilityData::cost)
+                .findFirst()
+                .orElse(0);
+    }
 }

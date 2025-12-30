@@ -39,7 +39,7 @@ public class ChooseKingdomScreen extends Screen {
         int buttonWidth = sectionWidth - (internalPadding * 2);
 
 
-        //Left Section
+        //Left Section (AIR)
         addDrawableChild(new TexturedButton(internalPadding, verticalSpacing, buttonWidth, buttonHeight, LEFT_KINGDOM, button -> {
 
             System.out.println(Kingdom.LEFT.getTranslationKey() + " Clicked!"); // DEBUG
@@ -48,7 +48,7 @@ public class ChooseKingdomScreen extends Screen {
             this.close();
         }));
 
-        //CENTER SECTION
+        //CENTER SECTION (EARTH)
         addDrawableChild(new TexturedButton(sectionWidth + internalPadding, verticalSpacing, buttonWidth, buttonHeight, CENTER_KINGDOM, button -> {
 
             System.out.println(Kingdom.CENTER.getTranslationKey() + " Clicked!"); // DEBUG
@@ -57,6 +57,7 @@ public class ChooseKingdomScreen extends Screen {
             this.close();
         }));
 
+        //RIGHT SECTION (WATER)
         addDrawableChild(new TexturedButton((sectionWidth * 2) + internalPadding, verticalSpacing, buttonWidth, buttonHeight, RIGHT_KINGDOM, button -> {
 
             System.out.println(Kingdom.RIGHT.getTranslationKey() + " Clicked!"); // DEBUG

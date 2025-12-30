@@ -1,10 +1,13 @@
 package abyssus.pandorae.component;
 
+import abyssus.pandorae.gui.stats.AbilityData;
+import abyssus.pandorae.util.AbilityLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.ladysnake.cca.api.v3.component.ComponentV3;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -12,6 +15,7 @@ import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class KingdomComponent implements ComponentV3 {
 
@@ -24,7 +28,7 @@ public class KingdomComponent implements ComponentV3 {
     public SoulState getSoulState() { return null; }
     public void setSoulState(SoulState state) { }
 
-    List<String> getPurchasedAbilities() {return null;}
+    public List<String> getPurchasedAbilities() {return null;}
 
     public void purchaseAbility(String id) {}
 
@@ -68,6 +72,7 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
     public void setFaith(int faith) {
         //clamp value between 0, 250
         this.faith = MathHelper.clamp(faith, 0, 200);
+        this.validateAbilities();
         ModComponents.KINGDOM.sync(this.player);
     }
 
@@ -117,6 +122,46 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
         view.putString("soul_state", this.soulState.name());
         // save list as comma-seperated string
         view.putString("abilities_list", String.join(",", purchasedAbilities));
+    }
+
+    public void validateAbilities() {
+        List<AbilityData> allAbilities = AbilityLoader.loadForKingdom(this.kingdom);
+        boolean changed = false;
+
+        // use a loop that allows removal
+        List<String> toRemove = new ArrayList<>();
+
+        for (String id : this.purchasedAbilities) {
+            AbilityData data = allAbilities.stream().filter(a -> a.id().equals(id)).findFirst().orElse(null);
+            if (data != null && this.faith < data.cost()) {
+                toRemove.add(id);
+            }
+        }
+
+        boolean cascade;
+        do {
+            cascade = false;
+            for (String id : this.purchasedAbilities) {
+                if (toRemove.contains(id)) continue;
+
+                AbilityData data = allAbilities.stream().filter(a -> a.id().equals(id)).findFirst().orElse(null);
+                if (data != null && !data.prerequisites().isEmpty()) {
+                    // if prerequisite is missing for the CURRENT active list
+                    boolean missingPrereq = data.prerequisites().stream().anyMatch(pre -> !this.purchasedAbilities.contains(pre) || toRemove.contains(pre));
+
+                    if (missingPrereq) {
+                        toRemove.add(id);
+                        cascade = true;
+                    }
+                }
+            }
+        } while (cascade);
+
+        if (!toRemove.isEmpty()) {
+            this.purchasedAbilities.removeAll(toRemove);
+            ModComponents.KINGDOM.sync(this.player);
+            this.player.sendMessage(Text.literal("§cYour faith is insufficient to sustain your powers..."), true);
+        }
     }
 
 }

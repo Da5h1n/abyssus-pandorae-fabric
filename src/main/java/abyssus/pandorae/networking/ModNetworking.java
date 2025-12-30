@@ -52,16 +52,18 @@ public class ModNetworking {
 
                 if (ability == null) return;
 
-                boolean prereqMet = ability.prerequisites().isEmpty() || ability.prerequisites().stream().allMatch(component::hasAbility);
+                boolean prereqMet = ability.prerequisites().isEmpty() ||
+                        ability.prerequisites().stream().allMatch(component::hasAbility);
+                boolean hasFaithThreshold = component.getFaith() >= ability.cost();
+                boolean hasConflict = ability.conflicts() != null && ability.conflicts().stream().anyMatch(component::hasAbility);
 
-                if (prereqMet && component.getFaith() >= ability.cost() && !component.hasAbility(slotId)) {
-                    component.setFaith(component.getFaith() - ability.cost());
+                if (prereqMet && hasFaithThreshold && !hasConflict && !component.hasAbility(slotId)) {
                     component.purchaseAbility(slotId);
-                    player.sendMessage(Text.literal("§6[Abyssus] §aUnlocked " + ability.name() + "!"), true);
+                    player.sendMessage(Text.literal("§6[Abyssus] §aYou have mastered " + ability.name() + "!"), true);
                 } else if (!prereqMet) {
                     player.sendMessage(Text.literal("§cYou must unlock the previous ability first!"), true);
-                } else {
-                    player.sendMessage(Text.literal("§cPurchase failed."), true);
+                } else if (!hasFaithThreshold) {
+                    player.sendMessage(Text.literal("§Your Faith (" + component.getFaith() + "/" + ability.cost() + ") is too low to unlock this!"), true);
                 }
             });
         }));
