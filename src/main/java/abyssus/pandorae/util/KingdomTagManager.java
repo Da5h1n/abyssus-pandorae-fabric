@@ -37,6 +37,7 @@ public class KingdomTagManager {
         team.setColor(kingdom.getColour());
 
         scoreboard.addScoreHolderToTeam(player.getNameForScoreboard(), team);
+        scoreboard.updateScoreboardTeam(team);
 
     }
 }

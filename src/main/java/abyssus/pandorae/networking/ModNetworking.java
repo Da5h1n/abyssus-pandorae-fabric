@@ -5,6 +5,7 @@ import abyssus.pandorae.component.ModComponents;
 import abyssus.pandorae.gui.stats.AbilityData;
 import abyssus.pandorae.util.AbilityLoader;
 import abyssus.pandorae.util.KingdomTagManager;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -88,5 +89,15 @@ public class ModNetworking {
                 }
             });
         }));
+
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive)-> {
+            var component = ModComponents.KINGDOM.get(newPlayer);
+
+            KingdomTagManager.updatePlayerDisplay(
+                    newPlayer,
+                    component.getKingdom(),
+                    component.getSoulState()
+            );
+        });
     }
 }
