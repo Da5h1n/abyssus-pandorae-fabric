@@ -1,6 +1,8 @@
 package abyssus.pandorae;
 
 import abyssus.pandorae.command.ModCommands;
+import abyssus.pandorae.item.ModItemGroups;
+import abyssus.pandorae.item.ModItems;
 import abyssus.pandorae.networking.ModNetworking;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
@@ -14,6 +16,9 @@ public class AbyssusPandorae implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+        ModItems.registerModItems();
+
+        ModItemGroups.registerItemGroups();
 
         ModCommands.register();
         ModNetworking.register();
