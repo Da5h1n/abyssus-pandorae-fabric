@@ -22,13 +22,16 @@ public class ModNetworking {
         //Handle kingdom selection payload
         ServerPlayNetworking.registerGlobalReceiver(KingdomSelectPayload.ID, (payload, context) -> {
             context.server().execute(() -> {
-                Kingdom selectedKingdom = payload.kingdom();
-                ModComponents.KINGDOM.get(context.player()).setKingdom(selectedKingdom);// Save the data to Cardinal Components
                 ServerPlayerEntity player = context.player();
-                KingdomTagManager.updatePlayerDisplay(player, selectedKingdom);
+                Kingdom selectedKingdom = payload.kingdom();
+
+                var component = ModComponents.KINGDOM.get(player);
+                component.setKingdom(selectedKingdom); // Save the data to Cardinal Components
+
+                KingdomTagManager.updatePlayerDisplay(player, selectedKingdom, component.getSoulState());
                 // send a message to the player confirming it worked
                 context.player().sendMessage(Text.literal("You have joined the ").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
-                ModComponents.KINGDOM.sync(context.player());
+                ModComponents.KINGDOM.sync(player);
             });
         });
 
@@ -73,10 +76,11 @@ public class ModNetworking {
 
         ServerPlayConnectionEvents.JOIN.register(((handler, sender, server) -> {
             server.execute(() -> {
-                var player = handler.getPlayer();
-                Kingdom currentKingdom = ModComponents.KINGDOM.get(player).getKingdom();
+                ServerPlayerEntity player = handler.getPlayer();
+                var component = ModComponents.KINGDOM.get(player);
+                Kingdom currentKingdom = component.getKingdom();
 
-                KingdomTagManager.updatePlayerDisplay(player, currentKingdom);
+                KingdomTagManager.updatePlayerDisplay(player, currentKingdom, component.getSoulState());
 
                 // If they havent picked a kingdom (the default "none"), tell them to open the screen
                 if (currentKingdom == Kingdom.NONE) {

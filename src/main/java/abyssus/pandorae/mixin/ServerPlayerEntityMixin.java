@@ -3,7 +3,6 @@ package abyssus.pandorae.mixin;
 import abyssus.pandorae.component.ModComponents;
 import abyssus.pandorae.util.KingdomTagManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.TeleportTarget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +19,8 @@ public class ServerPlayerEntityMixin {
         ServerPlayerEntity newPlayer = (ServerPlayerEntity) (Object) this;
 
         // Re-apply the tag and team color to the new player body
-        var kingdom = ModComponents.KINGDOM.get(newPlayer).getKingdom();
-        KingdomTagManager.updatePlayerDisplay(newPlayer, kingdom);
+        var component = ModComponents.KINGDOM.get(newPlayer);
+        KingdomTagManager.updatePlayerDisplay(newPlayer, component.getKingdom(), component.getSoulState());
     }
 
     // This runs when the player finishes changing dimensions
@@ -29,10 +28,10 @@ public class ServerPlayerEntityMixin {
     @Inject(method = "teleportTo", at = @At("TAIL"))
     private void abyssus$afterTeleport(TeleportTarget teleportTarget, CallbackInfoReturnable<ServerPlayerEntity> cir) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        var kingdom = ModComponents.KINGDOM.get(player).getKingdom();
+        var component = ModComponents.KINGDOM.get(player);
 
         // Re-apply the display logic in the new location/dimension
-        KingdomTagManager.updatePlayerDisplay(player, kingdom);
+        KingdomTagManager.updatePlayerDisplay(player, component.getKingdom(), component.getSoulState());
     }
 
 }

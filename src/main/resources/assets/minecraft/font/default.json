@@ -1,0 +1,11 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "abyssus-pandorae:font/soul_icons.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": ["\uE001\uE002\uE003\uE004"]
+    }
+  ]
+}

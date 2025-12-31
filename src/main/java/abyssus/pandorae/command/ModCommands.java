@@ -39,7 +39,8 @@ public class ModCommands {
                                         try {
                                             Kingdom kingdom = Kingdom.valueOf(input);
                                             ModComponents.KINGDOM.get(target).setKingdom(kingdom);
-                                            KingdomTagManager.updatePlayerDisplay(target, kingdom);
+                                            var component = ModComponents.KINGDOM.get(target);
+                                            KingdomTagManager.updatePlayerDisplay(target, kingdom, component.getSoulState());
 
                                             // Text.translatable as feedback
                                             context.getSource().sendFeedback(() -> Text.literal("Set kingdom for " + target.getName().getString() + " to ").append(Text.translatable(kingdom.getTranslationKey())),true);

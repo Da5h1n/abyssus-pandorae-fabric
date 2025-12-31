@@ -42,6 +42,8 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
 	filesMatching("fabric.mod.json") {
 		expand "version": inputs.properties.version
 	}
@@ -85,4 +87,13 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/generated'
+        }
+    }
 }

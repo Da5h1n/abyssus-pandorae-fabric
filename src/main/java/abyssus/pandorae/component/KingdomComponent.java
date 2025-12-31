@@ -5,6 +5,7 @@ import abyssus.pandorae.util.AbilityLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
@@ -64,6 +65,11 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
         this.kingdom = kingdom;
         // This tells CCA to send the new data to the client immediately
         ModComponents.KINGDOM.sync(this.player);
+
+        // refresh scoreboard display
+        if (this.player instanceof ServerPlayerEntity serverPlayer) {
+            abyssus.pandorae.util.KingdomTagManager.updatePlayerDisplay(serverPlayer, this.kingdom, this.soulState);
+        }
     }
 
     @Override
@@ -82,6 +88,10 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
     public void setSoulState(SoulState state) {
         this.soulState = state;
         ModComponents.KINGDOM.sync(this.player);
+
+        if (this.player instanceof ServerPlayerEntity serverPlayer){
+            abyssus.pandorae.util.KingdomTagManager.updatePlayerDisplay(serverPlayer, this.kingdom, this.soulState);
+        }
     }
 
     @Override

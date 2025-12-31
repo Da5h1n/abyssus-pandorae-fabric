@@ -5,12 +5,20 @@ import abyssus.pandorae.client.AbilityKeybinds;
 import abyssus.pandorae.gui.kingdoms.ChooseKingdomScreen;
 import abyssus.pandorae.gui.stats.KingdomStatsScreen;
 import abyssus.pandorae.networking.OpenKingdomScreenPayload;
+import abyssus.pandorae.util.AbilityLoader;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.impl.resource.loader.ResourceManagerHelperImpl;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -23,6 +31,11 @@ public class AbyssusPandoraeClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(
+                Identifier.of(AbyssusPandorae.MOD_ID, "abilities_loader"),
+                new AbilityLoader()
+        );
 
         AbilityKeybinds.register();
         ClientTickEvents.END_CLIENT_TICK.register(AbilityKeybinds::handleInput);
