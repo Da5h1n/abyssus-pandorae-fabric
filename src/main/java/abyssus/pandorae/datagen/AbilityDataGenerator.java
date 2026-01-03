@@ -35,22 +35,39 @@ public class AbilityDataGenerator implements DataProvider {
 
         //DEFINE ABILITIES
 // Left Kingdom Abilities
+        // add(builders, "SLOTID", "SLOTNAME", "DESCRIPTION", COST(INT), List.of("PREREQUISITES"), List.of("CONFLICTS"), "KINGDOM");
         add(builders, "slot_1", "slot_1", "TBD", 10, List.of(), List.of(), "left");
         add(builders, "slot_2", "slot_2", "TBD", 25, List.of("slot_1"), List.of(), "left");
         add(builders, "slot_3", "slot_3", "TBD", 20, List.of("slot_1"), List.of(), "left");
         add(builders, "slot_4", "slot_4", "TBD", 25, List.of("slot_2"), List.of(), "left");
+        add(builders, "slot_5", "Harpy", "TBD", 25, List.of("slot_2"), List.of(), "left");
         add(builders, "slot_6", "slot_6", "TBD", 25, List.of("slot_3"), List.of(), "left");
-        add(builders, "slot_5", "Harpy", "TBD", 25, List.of("slot_6"), List.of("slot_7", "slot_8"), "left");
-        add(builders, "slot_7", "Bat", "TBD", 25, List.of("slot_3"), List.of("slot_5", "slot_8"), "left");
-        add(builders, "slot_8", "Flying Squirrel", "TBD", 25, List.of("slot_3"), List.of("slot_5", "slot_7"), "left");
-        add(builders, "slot_9", "Total Aerokinesis", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_10", "slot_10", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_11", "Storm", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_12", "Tornado", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_13", "Fog", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_14", "Wind Spirit", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_15", "Banshee", "TBD", 25, List.of(), List.of(), "left");
-        add(builders, "slot_16", "slot_16", "TBD", 25, List.of(), List.of(), "left");
+        add(builders, "slot_7", "Bat", "TBD", 25, List.of("slot_3"), List.of(), "left");
+        add(builders, "slot_8", "Flying Squirrel", "TBD", 25, List.of("slot_4"), List.of(), "left");
+        add(builders, "slot_9", "Total Aerokinesis", "TBD", 25, List.of("slot_4"), List.of(), "left");
+        add(builders, "slot_10", "slot_10", "TBD", 25, List.of("slot_5"), List.of(), "left");
+        add(builders, "slot_11", "Storm", "TBD", 25, List.of("slot_5"), List.of(), "left");
+        add(builders, "slot_12", "Tornado", "TBD", 25, List.of("slot_6"), List.of(), "left");
+        add(builders, "slot_13", "Fog", "TBD", 25, List.of("slot_6"), List.of(), "left");
+        add(builders, "slot_14", "Wind Spirit", "TBD", 25, List.of("slot_7"), List.of(), "left");
+        add(builders, "slot_15", "Banshee", "TBD", 25, List.of("slot_7"), List.of(), "left");
+        add(builders, "slot_16", "slot_16", "TBD", 25, List.of("slot_8"), List.of(), "left");
+        add(builders, "slot_17", "slot_17", "TBD", 20, List.of("slot_8"), List.of(), "left");
+        add(builders, "slot_18", "slot_18", "TBD", 20, List.of("slot_9"), List.of(), "left");
+        add(builders, "slot_19", "slot_19", "TBD", 20, List.of("slot_9"), List.of(), "left");
+        add(builders, "slot_20", "slot_20", "TBD", 20, List.of("slot_10"), List.of(), "left");
+        add(builders, "slot_21", "slot_21", "TBD", 20, List.of("slot_10"), List.of(), "left");
+        add(builders, "slot_22", "slot_22", "TBD", 20, List.of("slot_11"), List.of(), "left");
+        add(builders, "slot_23", "slot_23", "TBD", 20, List.of("slot_11"), List.of(), "left");
+        add(builders, "slot_24", "slot_24", "TBD", 20, List.of("slot_12"), List.of(), "left");
+        add(builders, "slot_25", "slot_25", "TBD", 20, List.of("slot_12"), List.of(), "left");
+        add(builders, "slot_26", "slot_26", "TBD", 20, List.of("slot_13"), List.of(), "left");
+        add(builders, "slot_27", "slot_27", "TBD", 20, List.of("slot_13"), List.of(), "left");
+        add(builders, "slot_28", "slot_28", "TBD", 20, List.of("slot_14"), List.of(), "left");
+        add(builders, "slot_29", "slot_29", "TBD", 20, List.of("slot_14"), List.of(), "left");
+        add(builders, "slot_30", "slot_30", "TBD", 20, List.of("slot_15"), List.of(), "left");
+        add(builders, "slot_31", "slot_31", "TBD", 20, List.of("slot_15"), List.of(), "left");
+
 
         AbilityLayoutProvider layoutProvider = new AbilityLayoutProvider();
         layoutProvider.generateLayout(builders);

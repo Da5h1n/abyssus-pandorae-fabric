@@ -9,6 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.ladysnake.cca.api.v3.component.ComponentV3;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -170,7 +171,7 @@ class PlayerKingdomComponent extends KingdomComponent implements AutoSyncedCompo
         if (!toRemove.isEmpty()) {
             this.purchasedAbilities.removeAll(toRemove);
             ModComponents.KINGDOM.sync(this.player);
-            this.player.sendMessage(Text.literal("§cYour faith is insufficient to sustain your powers..."), true);
+            this.player.sendMessage(Text.translatable("text.abyssus_pandorae.insufficient_faith").formatted(Formatting.RED), true);
         }
     }
 

@@ -26,7 +26,7 @@ public class SoulManipulatorItem extends Item {
             component.setSoulState(SoulState.PROTECTED);
             component.setFaith(1);
 
-            player.sendMessage(Text.literal("Your soul has been anchored."), true);
+            player.sendMessage(Text.translatable("text.abyssus-pandorae.SoulManipulatorItem.use"), true);
 
             if (!player.getAbilities().creativeMode) {
                 itemStack.decrement(1);

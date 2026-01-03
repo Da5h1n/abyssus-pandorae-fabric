@@ -1,17 +1,31 @@
 {
   "abyssus-pandorae.screen.choose_kingdom": "Choose Kingdom Screen",
   "abyssus-pandorae.screen.choose_kingdom.title": "Choose your Kingdom.",
+  "abyssus-pandorae.choose_kingdom.message": "You have joined the ",
 
-  "abyssus-pandorae.kingdom.none": "U BROKE MOD???",
+  "abyssus-pandorae.kingdom.none": "No Kingdom",
   "abyssus-pandorae.kingdom.left_kingdom": "Left Kingdom",
   "abyssus-pandorae.kingdom.center_kingdom": "Center Kingdom",
   "abyssus-pandorae.kingdom.right_kingdom": "Right Kingdom",
+
+  "abyssus-pandorae.button.unlock": "Unlock",
+  "abyssus-pandorae.button.cancel": "Cancel",
 
   "key.category.minecraft.key.category_abyssus_pandorae": "Abyssus Pandorae",
   "key.abyssus_pandorae.open_kingdom": "DEBUG SELECT KINGDOM",
   "key.abyssus_pandorae.open_stats": "Open Skill Tree",
 
+  "text.abyssus-pandorae.prefix": "[Abyssus] ",
+  "text.abyssus-pandorae.insufficient_faith": "Your faith is insufficient to sustain your powers...",
+  "text.abyssus-pandorae.ability_mastered": "You have mastered %s",
+  "text.abyssus-pandorae.SoulManipulatorItem.use": "Your soul has been anchored.",
+
+  "text.abyssus-pandorae.commands.check.Kingdom": "Kingdom: ",
+  "text.abyssus-pandorae.commands.check.Soul": "Soul: ",
+  "text.abyssus-pandorae.commands.check.Faith": "Faith: (%s/%s)",
+
   "key.category.abyssus.abilities": "Abyssus Abilities",
+  "key.trigger.ability": "This slot is not yet unlocked!",
   "key.abyssus.slot_1": "Primary Ability Slot",
   "key.abyssus.slot_2": "Secondary Ability Slot"
 }

@@ -31,7 +31,7 @@ public class ModNetworking {
 
                 KingdomTagManager.updatePlayerDisplay(player, selectedKingdom, component.getSoulState());
                 // send a message to the player confirming it worked
-                context.player().sendMessage(Text.literal("You have joined the ").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
+                context.player().sendMessage(Text.translatable("abyssus-pandorae.choose_kingdom.message").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
                 ModComponents.KINGDOM.sync(player);
             });
         });
@@ -63,11 +63,7 @@ public class ModNetworking {
 
                 if (prereqMet && hasFaithThreshold && !hasConflict && !component.hasAbility(slotId)) {
                     component.purchaseAbility(slotId);
-                    player.sendMessage(Text.literal("§6[Abyssus] §aYou have mastered " + ability.name() + "!"), true);
-                } else if (!prereqMet) {
-                    player.sendMessage(Text.literal("§cYou must unlock the previous ability first!"), true);
-                } else if (!hasFaithThreshold) {
-                    player.sendMessage(Text.literal("§Your Faith (" + component.getFaith() + "/" + ability.cost() + ") is too low to unlock this!"), true);
+                    player.sendMessage(Text.translatable("text.abyssus-pandorae.prefix").formatted(Formatting.GOLD).append(Text.translatable("text.abyssus-pandorae.ability_mastered", ability.name()).formatted(Formatting.GREEN)), true);
                 }
             });
         }));

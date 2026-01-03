@@ -10,10 +10,12 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix3x2fc;
 
 import java.util.*;
 
@@ -28,7 +30,7 @@ public class KingdomStatsScreen extends Screen {
     private int lastFaith = -1;
     private int lastUnlockedCount = -1;
 
-    private record Vector2i(int x, int y) { }
+    public record Vector2i(int x, int y) { }
 
     public KingdomStatsScreen() {
         super(Text.literal("Kingdom Statistics"));
@@ -39,6 +41,18 @@ public class KingdomStatsScreen extends Screen {
     private float zoomScale = 1.0f; // Default zoom
     private final int hSpacing = 120;
     private final int vSpacing = 60;
+
+    private AbilityData selectedAbility = null;
+    private double targetScrollX = 0;
+    private double targetScrollY = 0;
+    private static final float LERP_SPEED = 0.15f;
+
+    private boolean isConfirming = false;
+    private AbilityData pendingAbility = null;
+    private ButtonWidget confirmationButton;
+    private ButtonWidget denyButton;
+
+    private final List<PathDot> activeDots = new ArrayList<>();
 
     @Override
     protected void init() {
@@ -54,80 +68,120 @@ public class KingdomStatsScreen extends Screen {
             abilityCashe.put(data.id(), data);
         }
 
-        int centerX = this.width / 2;
-        int centerY = this.height / 2;
+        this.targetScrollX = this.scrollX;
+        this.targetScrollY = this.scrollY;
+        int buttonYOffset = 25;
 
-        for (AbilityData data : this.abilityList) {
+        this.confirmationButton = ButtonWidget.builder(Text.translatable("abyssus-pandorae.button.unlock"), button -> {
+            if (pendingAbility != null) {
+                ClientPlayNetworking.send(new AbilityPurchasePayload(pendingAbility.id()));
+                closeConfirmation();
+            }
+        }).dimensions(this.width / 2 - 105, this.height / 2 + buttonYOffset, 100, 20).build();
 
-            int renderX = centerX + (data.gridX() * hSpacing) - 50;
-            int renderY = centerY - (data.gridY() * vSpacing) - 10;
+        this.denyButton = ButtonWidget.builder(Text.translatable("abyssus-pandorae.button.cancel"), b -> closeConfirmation())
+                .dimensions(this.width / 2 + 5, this.height / 2 + buttonYOffset, 100, 20).build();
 
-            boolean owned = component.hasAbility(data.id());
-            boolean prereqMet = isPrereqMet(data, component);
-            boolean hasEnoughFaith = component.getFaith() >= data.cost();
-            boolean hasConflict = data.conflicts() != null && data.conflicts().stream().anyMatch(component::hasAbility);
+        this.addDrawableChild(confirmationButton);
+        this.addDrawableChild(denyButton);
+        updateButtonVisiblility();
 
-            ButtonWidget btn = ButtonWidget.builder(Text.literal(data.name()), button -> {
-                ClientPlayNetworking.send(new AbilityPurchasePayload(data.id()));
-            })
-                    .dimensions(renderX, renderY, 100, 20)
-                    .build();
+    }
 
-            btn.active = !owned && !hasConflict && prereqMet && hasEnoughFaith;
-            this.addDrawableChild(btn);
-        }
+    private void updateButtonVisiblility() {
+        confirmationButton.visible = isConfirming;
+        denyButton.visible = isConfirming;
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         if (this.client == null || this.client.player == null) return;
 
-        renderParallaxBackground(context);
+        this.scrollX = MathHelper.lerp(LERP_SPEED, this.scrollX, this.targetScrollX);
+        this.scrollY = MathHelper.lerp(LERP_SPEED, this.scrollY, this.targetScrollY);
 
-        // tint over background
+        renderParallaxBackground(context);
         context.fill(0, 0, this.width, this.height, 0xAA000000);
 
         // save screen state
         context.getMatrices().pushMatrix();
-
-        // move to mouse, scale and then move back
         context.getMatrices().translate(this.width / 2f, this.height / 2f);
         context.getMatrices().scale(zoomScale, zoomScale);
         context.getMatrices().translate(-this.width / 2f, -this.height / 2f);
 
         context.getMatrices().translate((float) scrollX, (float) scrollY);
 
-        double sx = (mouseX - this.width / 2.0) / zoomScale + (this.width / 2.0) - scrollX;
-        double sy = (mouseY - this.height / 2.0) / zoomScale + (this.height / 2.0) - scrollY;
-
         var component = ModComponents.KINGDOM.get(this.client.player);
         renderTreeLines(context, component);
         renderConflictLines(context, component);
 
-        super.render(context, (int) sx, (int) sy, deltaTicks);
+        // MOVE PATH DOTS
+        for (PathDot dot : activeDots) {
+            dot.update(deltaTicks, this.width, this.height, hSpacing, vSpacing);
+            dot.render(context, this.width, this.height, hSpacing, vSpacing);
+        }
+
+        for (AbilityData data : abilityList) {
+            renderAbilityButton(context, data, component);
+        }
+
         renderPadlocks(context, component);
 
         //Tooltip logic
-        for (AbilityData data : abilityList) {
-            int centerX = this.width / 2;
-            int centerY = this.height / 2;
+        double sx = (mouseX - this.width / 2.0) / zoomScale + (this.width / 2.0) - scrollX;
+        double sy = (mouseY - this.height / 2.0) / zoomScale + (this.height / 2.0) - scrollY;
+        if (!isConfirming) {
+            for (AbilityData data : abilityList) {
+                int centerX = this.width / 2;
+                int centerY = this.height / 2;
 
-            // calculate button position and bounds in world space
-            int btnX = centerX + (data.gridX() * hSpacing) - 50;
-            int btnY = centerY - (data.gridY() * vSpacing) - 10;
-            int btnW = 100;
-            int btnH = 20;
-
-            // check if the scaled/planned mouse (sx, sy) is inside this buttons area
-            if (sx >= btnX && sx <= btnX + btnW && sy >= btnY && sy <= btnY + btnH) {
-                renderAbilityTooltip(context, mouseX, mouseY, data, component);
-                break;
+                // calculate button position and bounds in world space
+                int btnX = centerX + (data.gridX() * hSpacing) - 50;
+                int btnY = centerY - (data.gridY() * vSpacing) - 10;
+                // check if the scaled/planned mouse (sx, sy) is inside this buttons area
+                if (sx >= btnX && sx <= btnX + 100 && sy >= btnY && sy <= btnY + 20) {
+                    renderAbilityTooltip(context, mouseX, mouseY, data, component);
+                    break;
+                }
             }
         }
 
         context.getMatrices().popMatrix();
+
+        if (isConfirming && pendingAbility != null) {
+            // darken the tree
+            context.fill(0, 0, this.width, this.height, 0x88000000);
+
+            int boxW = 240;
+            int boxH = 100;
+            int bx = (this.width - boxW) / 2;
+            int by = (this.height - boxH) / 2;
+
+            drawHeaderBox(context, bx, by, boxW, boxH, 0xFFFFAA00, 0xFF000000);
+            // Title
+            context.drawCenteredTextWithShadow(textRenderer, "Unlock " + pendingAbility.name() + "?", this.width / 2, by + 10, -1);
+            // Description
+            context.drawCenteredTextWithShadow(textRenderer, Text.literal(pendingAbility.description()).formatted(Formatting.ITALIC, Formatting.GRAY), this.width / 2, by + 28, -1);
+            // Requires
+            context.drawCenteredTextWithShadow(textRenderer, "Requires: " + pendingAbility.cost() + " Faith", this.width / 2, by + 45, 0xFFFFAA00);
+        }
+
         //Header Logic
         renderHeader(context, component);
+        super.render(context, mouseX, mouseY, deltaTicks);
+    }
+
+    private void renderAbilityButton(DrawContext context, AbilityData data, KingdomComponent component) {
+        int x = (this.width / 2) + (data.gridX() * hSpacing) - 50;
+        int y = (this.height / 2) - (data.gridY() * vSpacing) - 10;
+
+        boolean owned = component.hasAbility(data.id());
+        int borderColour = selectedAbility == data ? 0xFFFFFFFF : (owned ? 0xFFFFAA00 : 0xFFAAAAAA);
+
+        drawHeaderBox(context, x, y, 100, 20, borderColour, 0xAA000000);
+
+        int textColour = owned ? 0xFFFFAA00 : (isPrereqMet(data, component) ? 0xFFFFFFFF : 0xFF777777);
+        context.drawCenteredTextWithShadow(this.textRenderer, data.name(), x + 50, y + 6, textColour);
     }
 
     private void renderHeader(DrawContext context, KingdomComponent component) {
@@ -135,30 +189,26 @@ public class KingdomStatsScreen extends Screen {
         int headerHeight = 30;
         int headerY = 10;
         int spacingFromCenter = 10;
-        int borderColor = 0xFFAAAAAA;
 
         //Left header: Faith
-
         int faithX = (this.width / 2) - headerWidth - spacingFromCenter;
-        drawHeaderBox(context, faithX, headerY, headerWidth, headerHeight, borderColor);
-
+        drawHeaderBox(context, faithX, headerY, headerWidth, headerHeight, 0xFFAAAAAA, 0xFF555555);
         Text faithText = Text.literal("Faith: ").append(Text.literal(String.valueOf(component.getFaith())).formatted(Formatting.GOLD));
         context.drawCenteredTextWithShadow(this.textRenderer, faithText, faithX + (headerWidth / 2), headerY + 10, -1);
 
         //Right Header: Soul State
         int soulX = (this.width / 2) + spacingFromCenter;
-        drawHeaderBox(context, soulX, headerY, headerWidth, headerHeight, borderColor);
-
+        drawHeaderBox(context, soulX, headerY, headerWidth, headerHeight, 0xFFAAAAAA, 0xFF555555);
         Text soulText = Text.literal( component.getSoulState().getIconChar().formatted(Formatting.WHITE) + " Soul: ").append(Text.literal(String.valueOf(component.getSoulState().getDisplayName())).formatted(Formatting.AQUA));
         context.drawCenteredTextWithShadow(this.textRenderer, soulText, soulX + (headerWidth / 2), headerY + 10, -1);
     }
 
-    private void drawHeaderBox(DrawContext context, int x, int y, int w, int h, int color) {
-        context.fill(x, y, x + w, y + h, 0xAA000000); // Background
-        context.fill(x, y, x + w, y + 1, color); // Top border
-        context.fill(x, y + h - 1, x + w, y + h, color); //Bottom border
-        context.fill(x, y, x + 1, y + h, color); // Left border
-        context.fill(x + w - 1, y, x + w, y + h, color);
+    private void drawHeaderBox(DrawContext context, int x, int y, int w, int h, int borderColor, int backgroundColour) {
+        context.fill(x, y, x + w, y + h, backgroundColour); // Background
+        context.fill(x, y, x + w, y + 1, borderColor); // Top border
+        context.fill(x, y + h - 1, x + w, y + h, borderColor); //Bottom border
+        context.fill(x, y, x + 1, y + h, borderColor); // Left border
+        context.fill(x + w - 1, y, x + w, y + h, borderColor);
     }
 
     private void renderTreeLines(DrawContext context, KingdomComponent component) {
@@ -269,16 +319,42 @@ public class KingdomStatsScreen extends Screen {
     private void drawConnectingLine(DrawContext context, int startX, int startY, int endX, int endY, int colour) {
         // draw diagonal connector
 
-        int dx = endX - startX;
-        int dy = endY - startY;
-        int steps = Math.max(Math.abs(dx), Math.abs(dy)) * 2;
+        context.getMatrices().pushMatrix();
 
-        for (int i = 0; i <= steps; i++) {
-            float ratio = (float) i / steps;
-            int px = (int) (startX + (dx * ratio));
-            int py = (int) (startY + (dy * ratio));
-            context.fill(px - 1, py - 1, px + 1, py + 1, colour);
+        float dx = endX - startX;
+        float dy = endY - startY;
+        float angle = (float) Math.atan2(dy, dx);
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+
+        context.getMatrices().translate(startX, startY);
+        context.getMatrices().rotateAbout(angle, 0,0);
+
+        context.fill(0, -1, (int) len, 1, colour);
+
+        context.getMatrices().popMatrix();
+    }
+
+    private List<Vector2i> calculatePathToRoot(AbilityData current) {
+        List<Vector2i> path = new ArrayList<>();
+        AbilityData active = current;
+        List<AbilityData> chain = new ArrayList<>();
+
+        while (active != null) {
+            chain.add(active);
+            if (active.prerequisites().isEmpty()) break;
+            active = abilityCashe.get(active.prerequisites().getFirst());
         }
+
+        Collections.reverse(chain);
+
+        for (AbilityData node : chain) {
+            int centerX = (this.width / 2) + (node.gridX() * hSpacing);
+            int centerY = (this.height / 2) - (node.gridY() * vSpacing);
+
+            path.add(new Vector2i(centerX, centerY + 10));
+            path.add(new Vector2i(centerX, centerY - 10));
+        }
+        return path;
     }
 
     private void drawDashedLine(DrawContext context, int x1, int y1, int x2, int y2, int colour) {
@@ -316,22 +392,94 @@ public class KingdomStatsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
-        if (click.button() == 0) {
-            this.scrollX += offsetX / zoomScale;
-            this.scrollY += offsetY / zoomScale;
-            return true;
-        }
-        return super.mouseDragged(click, offsetX, offsetY);
-    }
-
-    @Override
     public boolean mouseClicked(Click click, boolean doubled) {
+        if (isConfirming) return super.mouseClicked(click, doubled);
+
         double sx = (click.x() - (this.width / 2.0)) / zoomScale + (this.width / 2.0) - scrollX;
         double sy = (click.y() - (this.height / 2.0)) / zoomScale + (this.height / 2.0) - scrollY;
 
-        Click scaledClick = new Click(sx, sy, click.buttonInfo());
-        return super.mouseClicked(scaledClick, doubled);
+        var component = ModComponents.KINGDOM.get(this.client.player);
+
+        for (AbilityData data : abilityList) {
+            int btnX = (this.width / 2) + (data.gridX() * hSpacing) - 50;
+            int btnY = (this.height / 2) - (data.gridY() * vSpacing) - 10;
+
+            if (sx >= btnX && sx <= btnX + 100 && sy >= btnY && sy <= btnY + 20) {
+                boolean owned = component.hasAbility(data.id());
+                boolean canAfford = component.getFaith() >= data.cost();
+                boolean prereqMet = isPrereqMet(data, component);
+
+                if (this.selectedAbility == data) {
+                    if (!owned && canAfford && prereqMet) {
+                        openCustomConfirmationDialog(data);
+                    }
+                } else {
+                    this.selectedAbility = data;
+                    this.targetScrollX = -(data.gridX() * hSpacing);
+                    this.targetScrollY = (data.gridY() * vSpacing);
+
+                    // Spawn Dots
+                    activeDots.clear();
+                    List<AbilityData> chain = new ArrayList<>();
+                    AbilityData active = data;
+                    while (active != null) {
+                        chain.add(active);
+                        if (component.hasAbility(active.id())) break;
+                        if (active.prerequisites().isEmpty()) break;
+                        active = abilityCashe.get(active.prerequisites().getFirst());
+                    }
+                    Collections.reverse(chain);
+
+                    if (chain.size() > 1) {
+                        float pixelsPerTick = 60.0f / 20.0f;
+                        int totalSegments = chain.size() - 1;
+
+                        float totalDist = 0;
+                        for (int i = 0; i < totalSegments; i++) {
+                            AbilityData s = chain.get(i);
+                            AbilityData e = chain.get(i+1);
+                            double dx = (e.gridX() - s.gridX()) * hSpacing;
+                            double dy = (-(e.gridY() * vSpacing) + 10) - (-(s.gridY() * vSpacing) - 10);
+                            totalDist += (float) Math.sqrt(dx * dx + dy * dy);
+                        }
+
+                        float spacingLerp = MathHelper.clamp((totalDist - 60f) / 400f, 0f, 1f);
+                        float dynamicSpacing = MathHelper.lerp(spacingLerp, 30.0f, 45.0f);
+
+                        int dotCount = Math.round(totalDist / dynamicSpacing);
+                        dotCount = MathHelper.clamp(dotCount, 2, 15);
+
+                        float averageSpacing = totalDist / (float) dotCount;
+                        float delayPerDot = averageSpacing / pixelsPerTick;
+
+                        for (int i = 0; i < dotCount; i++) {
+                            activeDots.add(new PathDot(chain, 0xFFFFAA00, i * delayPerDot));
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+        return super.mouseClicked(click, doubled);
+    }
+
+    @Override
+    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+        if (isConfirming) return false;
+
+        //if the player starts dragging "unlock" selection
+        if (Math.abs(offsetX) > 0.5 || Math.abs(offsetY) > 0.5) {
+            this.selectedAbility = null;
+        }
+
+        if (click.button() == 0) {
+            this.targetScrollX += offsetX / zoomScale;
+            this.targetScrollY += offsetY / zoomScale;
+            this.scrollX = targetScrollX;
+            this.scrollY = targetScrollY;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -341,6 +489,23 @@ public class KingdomStatsScreen extends Screen {
 
         Click scaledClick = new Click(sx, sy, click.buttonInfo());
         return super.mouseReleased(scaledClick);
+    }
+
+    private void openConfirmationDialog(AbilityData data) {
+        if (this.client == null) return;
+
+        this.client.setScreen(new net.minecraft.client.gui.screen.ConfirmScreen(
+                (confirmed) -> {
+                    if (confirmed) {
+                        // if yes is pressed send packet
+                        ClientPlayNetworking.send(new AbilityPurchasePayload(data.id()));
+                    }
+                    // return to stats screen
+                    this.client.setScreen(this);
+                },
+                Text.literal("Unlock " + data.name() + "?").formatted(Formatting.YELLOW), // TITLE
+                Text.literal("Are you sure you want to spend " + data.cost() + " Faith on this Ability?")
+        ));
     }
 
     @Override
@@ -369,6 +534,19 @@ public class KingdomStatsScreen extends Screen {
     private boolean isPrereqMet(AbilityData data, KingdomComponent component) {
         if (data.prerequisites().isEmpty()) return true;
         return data.prerequisites().stream().allMatch(component::hasAbility);
+    }
+
+    private void openCustomConfirmationDialog(AbilityData data) {
+        this.isConfirming = true;
+        this.pendingAbility = data;
+        updateButtonVisiblility();
+    }
+
+    private void closeConfirmation() {
+        this.isConfirming = false;
+        this.pendingAbility = null;
+        this.selectedAbility = null;
+        updateButtonVisiblility();
     }
 }
 

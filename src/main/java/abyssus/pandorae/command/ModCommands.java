@@ -12,6 +12,7 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import static net.minecraft.server.command.CommandManager.*;
 
@@ -93,18 +94,21 @@ public class ModCommands {
         KingdomComponent component = ModComponents.KINGDOM.get(target);
 
         // Build header
-        Text header = Text.literal("§b--- ").append(target.getName()).append(" §b---");
+        Text header = Text.literal("§b--- ").append(target.getName()).append(" §b---\n");
 
         // Build Kingdom line
-        Text kingdomLine = Text.literal("\n§7Kingdom: §f")
-                .append(Text.translatable(component.getKingdom().getTranslationKey()));
+        Text kingdomLine = Text.translatable("text.abyssus-pandorae.commands.check.Kingdom").formatted(Formatting.GRAY)
+                .append(Text.translatable(component.getKingdom().getTranslationKey())).formatted(component.getKingdom().getColour())
+                .append("\n");
 
         // Build Soul line
-        Text soulLine = Text.literal("\n§7Soul: §e")
-                .append(Text.literal(component.getSoulState().getDisplayName()));
+        Text soulLine = Text.translatable("text.abyssus-pandorae.commands.check.Soul").formatted(Formatting.GRAY)
+                .append(component.getSoulState().getIconChar())
+                .append(" " + component.getSoulState().getDisplayName())
+                .append("\n");
 
         //Build faith line
-        Text faithline = Text.literal("\n§7Faith: §a" + component.getFaith() + "/200");
+        Text faithline = Text.translatable("text.abyssus-pandorae.commands.check.Faith", component.getFaith(), 200);
 
         //combine
         Text finalProfile = Text.empty()
