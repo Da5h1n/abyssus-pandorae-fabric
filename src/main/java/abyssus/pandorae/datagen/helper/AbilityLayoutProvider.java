@@ -1,8 +1,5 @@
 package abyssus.pandorae.datagen.helper;
 
-import abyssus.pandorae.gui.stats.AbilityData;
-import org.joml.Vector2i;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +14,17 @@ public class AbilityLayoutProvider {
                 .filter(b -> b.getPrerequisites().isEmpty())
                 .toList();
 
-        int currentX = 0;
+        int totalTreeWidth = 0;
+        for (AbilityDataBuilder root : roots) {
+            totalTreeWidth += calculateWidth(root, builders) + 2;
+        }
+        totalTreeWidth -= 2;
+
+        int currentX = -(totalTreeWidth / 2);
+
         for (AbilityDataBuilder root : roots) {
             int rootWidth = calculateWidth(root, builders);
-            // spread horisontally
+
             assignCoords(root, builders, currentX + (rootWidth / 2), 0);
             currentX += rootWidth + 2;
         }

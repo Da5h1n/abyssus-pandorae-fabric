@@ -1,5 +1,6 @@
 package abyssus.pandorae.gui.stats;
 
+import abyssus.pandorae.AbyssusPandorae;
 import abyssus.pandorae.component.KingdomComponent;
 import abyssus.pandorae.component.ModComponents;
 import abyssus.pandorae.networking.AbilityPurchasePayload;
@@ -14,8 +15,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import org.joml.Matrix3x2fc;
 
 import java.util.*;
 
@@ -68,8 +67,12 @@ public class KingdomStatsScreen extends Screen {
             abilityCashe.put(data.id(), data);
         }
 
-        this.targetScrollX = this.scrollX;
-        this.targetScrollY = this.scrollY;
+        this.targetScrollX = 0;
+        this.targetScrollY = 0;
+
+        this.scrollX = 0;
+        this.scrollY = 0;
+
         int buttonYOffset = 25;
 
         this.confirmationButton = ButtonWidget.builder(Text.translatable("abyssus-pandorae.button.unlock"), button -> {
@@ -101,7 +104,8 @@ public class KingdomStatsScreen extends Screen {
         this.scrollY = MathHelper.lerp(LERP_SPEED, this.scrollY, this.targetScrollY);
 
         renderParallaxBackground(context);
-        context.fill(0, 0, this.width, this.height, 0xAA000000);
+        // draw dark background
+        context.fill(0, 0, this.width, this.height, AbyssusPandorae.config.skillTreeBg); //0xAA000000
 
         // save screen state
         context.getMatrices().pushMatrix();
@@ -150,14 +154,14 @@ public class KingdomStatsScreen extends Screen {
 
         if (isConfirming && pendingAbility != null) {
             // darken the tree
-            context.fill(0, 0, this.width, this.height, 0x88000000);
+            context.fill(0, 0, this.width, this.height, 0x88000000); //0x88000000
 
             int boxW = 240;
             int boxH = 100;
             int bx = (this.width - boxW) / 2;
             int by = (this.height - boxH) / 2;
 
-            drawHeaderBox(context, bx, by, boxW, boxH, 0xFFFFAA00, 0xFF000000);
+            drawHeaderBox(context, bx, by, boxW, boxH, AbyssusPandorae.config.confirmdialogborder, AbyssusPandorae.config.confirmdialogBg); // 0xFFFFAA00 0xFF000000
             // Title
             context.drawCenteredTextWithShadow(textRenderer, "Unlock " + pendingAbility.name() + "?", this.width / 2, by + 10, -1);
             // Description
@@ -176,11 +180,15 @@ public class KingdomStatsScreen extends Screen {
         int y = (this.height / 2) - (data.gridY() * vSpacing) - 10;
 
         boolean owned = component.hasAbility(data.id());
-        int borderColour = selectedAbility == data ? 0xFFFFFFFF : (owned ? 0xFFFFAA00 : 0xFFAAAAAA);
+
+        int InactiveskillBorder = AbyssusPandorae.config.InactiveskillBorder;
+        int ActiveskillBorder = AbyssusPandorae.config.ActiveskillBorder;
+
+        int borderColour = selectedAbility == data ? 0xFFFFFFFF : (owned ? ActiveskillBorder : InactiveskillBorder);
 
         drawHeaderBox(context, x, y, 100, 20, borderColour, 0xAA000000);
 
-        int textColour = owned ? 0xFFFFAA00 : (isPrereqMet(data, component) ? 0xFFFFFFFF : 0xFF777777);
+        int textColour = owned ? ActiveskillBorder  : (isPrereqMet(data, component) ? 0xFFFFFFFF : InactiveskillBorder);
         context.drawCenteredTextWithShadow(this.textRenderer, data.name(), x + 50, y + 6, textColour);
     }
 
@@ -190,15 +198,19 @@ public class KingdomStatsScreen extends Screen {
         int headerY = 10;
         int spacingFromCenter = 10;
 
+        int borderColour = AbyssusPandorae.config.headerBorder;
+        int bgColour = AbyssusPandorae.config.headerbg;
+
+
         //Left header: Faith
         int faithX = (this.width / 2) - headerWidth - spacingFromCenter;
-        drawHeaderBox(context, faithX, headerY, headerWidth, headerHeight, 0xFFAAAAAA, 0xFF555555);
+        drawHeaderBox(context, faithX, headerY, headerWidth, headerHeight, borderColour, bgColour);
         Text faithText = Text.literal("Faith: ").append(Text.literal(String.valueOf(component.getFaith())).formatted(Formatting.GOLD));
         context.drawCenteredTextWithShadow(this.textRenderer, faithText, faithX + (headerWidth / 2), headerY + 10, -1);
 
         //Right Header: Soul State
         int soulX = (this.width / 2) + spacingFromCenter;
-        drawHeaderBox(context, soulX, headerY, headerWidth, headerHeight, 0xFFAAAAAA, 0xFF555555);
+        drawHeaderBox(context, soulX, headerY, headerWidth, headerHeight, borderColour, bgColour);
         Text soulText = Text.literal( component.getSoulState().getIconChar().formatted(Formatting.WHITE) + " Soul: ").append(Text.literal(String.valueOf(component.getSoulState().getDisplayName())).formatted(Formatting.AQUA));
         context.drawCenteredTextWithShadow(this.textRenderer, soulText, soulX + (headerWidth / 2), headerY + 10, -1);
     }
@@ -250,7 +262,7 @@ public class KingdomStatsScreen extends Screen {
 
                     // if either side of the conflict is owned make the "X" line bright red
                     boolean conflictActive = component.hasAbility(data.id()) || component.hasAbility(conflitId);
-                    int lineColour = conflictActive ? 0xFFFF0000 : 0xFF770000; // bright red if choice made, Dim Red if available
+                    int lineColour = conflictActive ? AbyssusPandorae.config.Conflictlineon : AbyssusPandorae.config.Conflictlineoff; // bright red if choice made, Dim Red if available
 
                     drawDashedLine(context, x1, y1, x2, y2, lineColour);
                     context.drawText(this.textRenderer, "X", (x1 + x2) / 2 - 3, (y1 + y2) / 2 - 4, lineColour, false);
@@ -526,9 +538,16 @@ public class KingdomStatsScreen extends Screen {
         boolean parentOwned = component.hasAbility(parent.id());
         boolean childOwned = component.hasAbility(child.id());
 
-        if (isBlocked) return  0xFF8B0000;  //DARK RED
-        if (parentOwned && childOwned) return 0xFFFFAA00; // GOLD
-        return 0xFF555555; // Grey
+        if (parentOwned && childOwned) {
+            return AbyssusPandorae.config.PathlineOn;
+        }
+
+
+        if (isBlocked) {
+            return  AbyssusPandorae.config.Conflictlineoff;  // 0xFF8B0000 DARK RED
+        }
+
+        return AbyssusPandorae.config.PathlineOff; //  0xFF555555 Grey
     }
 
     private boolean isPrereqMet(AbilityData data, KingdomComponent component) {

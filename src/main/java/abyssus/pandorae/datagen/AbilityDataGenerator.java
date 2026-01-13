@@ -25,8 +25,16 @@ public class AbilityDataGenerator implements DataProvider {
         this.output = output;
     }
 
-    private void add(List<AbilityDataBuilder> builders, String id, String name, String desc, int cost, List<String> pre, List<String> con, String kingdom) {
-        builders.add(new AbilityDataBuilder(id, name, desc, cost, pre, con, kingdom));
+    private void add(List<AbilityDataBuilder> builders, String id, String name, String desc, int cost,
+                     List<String> pre, List<String> con, String kingdom,
+                     AbilityData.AbilityType type, String actionId) {
+        builders.add(new AbilityDataBuilder(id, name, desc, cost, pre, con, kingdom, type, actionId));
+    }
+
+    private void add(List<AbilityDataBuilder> builders, String id, String name, String desc, int cost,
+                     List<String> pre, List<String> con, String kingdom) {
+        builders.add(new AbilityDataBuilder(id, name, desc, cost, pre, con, kingdom,
+                AbilityData.AbilityType.PASSIVE, "none"));
     }
 
     @Override
@@ -35,7 +43,7 @@ public class AbilityDataGenerator implements DataProvider {
 
         //DEFINE ABILITIES
 // Left Kingdom Abilities
-        // add(builders, "SLOTID", "SLOTNAME", "DESCRIPTION", COST(INT), List.of("PREREQUISITES"), List.of("CONFLICTS"), "KINGDOM");
+        // add(builders, "SLOTID", "SLOTNAME", "DESCRIPTION", COST(INT), List.of("PREREQUISITES"), List.of("CONFLICTS"), "KINGDOM", *ABILITY TYPE*, *ABILITY ID*); * ARE OPTIONAL
         add(builders, "slot_1", "slot_1", "TBD", 10, List.of(), List.of(), "left");
         add(builders, "slot_2", "slot_2", "TBD", 25, List.of("slot_1"), List.of(), "left");
         add(builders, "slot_3", "slot_3", "TBD", 20, List.of("slot_1"), List.of(), "left");
@@ -65,8 +73,11 @@ public class AbilityDataGenerator implements DataProvider {
         add(builders, "slot_27", "slot_27", "TBD", 20, List.of("slot_13"), List.of(), "left");
         add(builders, "slot_28", "slot_28", "TBD", 20, List.of("slot_14"), List.of(), "left");
         add(builders, "slot_29", "slot_29", "TBD", 20, List.of("slot_14"), List.of(), "left");
-        add(builders, "slot_30", "slot_30", "TBD", 20, List.of("slot_15"), List.of(), "left");
-        add(builders, "slot_31", "slot_31", "TBD", 20, List.of("slot_15"), List.of(), "left");
+        add(builders, "slot_30", "slot_30", "TBD", 20, List.of("slot_15"), List.of("slot_31"), "left");
+        add(builders, "slot_31", "slot_31", "TBD", 20, List.of("slot_15"), List.of("slot_30"), "left");
+        // TEST PLACHOLDER BELOW:
+        add(builders, "slot_1", "Vitality", "Increases Max Health", 20, List.of(), List.of(), "left", AbilityData.AbilityType.PASSIVE, "health_boost");
+        add(builders, "slot_2", "Quick Dash", "Burst Forward", 20, List.of("slot_1"), List.of(), "left", AbilityData.AbilityType.ACTIVE, "dash");
 
 
         AbilityLayoutProvider layoutProvider = new AbilityLayoutProvider();

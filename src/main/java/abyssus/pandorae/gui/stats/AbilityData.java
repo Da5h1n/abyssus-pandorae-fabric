@@ -14,8 +14,12 @@ public record AbilityData(
         List<String> conflicts,
         String kingdom,
         int gridX,
-        int gridY
+        int gridY,
+        AbilityType type,
+        String actionId
 ) {
+    public enum AbilityType { PASSIVE, ACTIVE }
+
     public static final Codec<AbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(AbilityData::id),
             Codec.STRING.fieldOf("name").forGetter(AbilityData::name),
@@ -25,6 +29,8 @@ public record AbilityData(
             Codec.STRING.listOf().fieldOf("conflicts").forGetter(AbilityData::conflicts),
             Codec.STRING.fieldOf("kingdom").forGetter(AbilityData::kingdom),
             Codec.INT.fieldOf("gridX").forGetter(AbilityData::gridX),
-            Codec.INT.fieldOf("gridY").forGetter(AbilityData::gridY)
+            Codec.INT.fieldOf("gridY").forGetter(AbilityData::gridY),
+            Codec.STRING.fieldOf("type").xmap(AbilityType::valueOf, AbilityType::name).forGetter(AbilityData::type),
+            Codec.STRING.fieldOf("actionId").forGetter(AbilityData::actionId)
     ).apply(instance, AbilityData::new));
 }

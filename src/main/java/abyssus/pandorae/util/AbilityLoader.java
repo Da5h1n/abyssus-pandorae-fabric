@@ -57,4 +57,8 @@ public class AbilityLoader extends JsonDataLoader<AbilityData> implements Resour
                 .filter(a -> a.kingdom().equalsIgnoreCase(targetKingdom))
                 .toList();
     }
+
+    public static AbilityData get(String id) {
+        return ABILITIES.values().stream().filter(data -> data.id().equals(id)).findFirst().orElse(null);
+    }
 }

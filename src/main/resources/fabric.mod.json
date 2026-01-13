@@ -32,7 +32,7 @@
           "abyssus.pandorae.component.ModComponents"
         ],
         "modmenu": [
-          "abyssus.pandorae.MyModMenuIntegration"
+          "abyssus.pandorae.AbyssusPandoraeModMenu"
         ]
 	},
 	"mixins": [

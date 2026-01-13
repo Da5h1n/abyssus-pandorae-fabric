@@ -1,5 +1,7 @@
 package abyssus.pandorae.gui.stats;
 
+import abyssus.pandorae.AbyssusPandorae;
+import abyssus.pandorae.util.AbilityLoader;
 import net.minecraft.client.gui.DrawContext;
 
 import java.util.List;
@@ -78,7 +80,8 @@ public class PathDot {
         if (isInsideButton(x, y, screenWidth, screenHeight, hs, vs)) return;
 
         int alpha = calculateAlpha();
-        int fadeColour = (alpha << 24) | (colour & 0x00FFFFFF);
+        int dotColour = AbyssusPandorae.config.dotColour;
+        int fadeColour = (alpha << 24) | (dotColour & 0x00FFFFFF);
 
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x, y);

@@ -15,7 +15,10 @@ public class AbilityDataBuilder {
     private int gridX;
     private int gridY;
 
-    public AbilityDataBuilder(String id, String name, String description, int cost, List<String> prerequisites, List<String> conflicts, String kingdom) {
+    private AbilityData.AbilityType type;
+    private String actionId;
+
+    public AbilityDataBuilder(String id, String name, String description, int cost, List<String> prerequisites, List<String> conflicts, String kingdom, AbilityData.AbilityType type, String actionId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -23,6 +26,8 @@ public class AbilityDataBuilder {
         this.prerequisites = prerequisites;
         this.conflicts = conflicts;
         this.kingdom = kingdom;
+        this.type = type;
+        this.actionId = actionId;
     }
 
     public String getId() {return id;}
@@ -31,6 +36,6 @@ public class AbilityDataBuilder {
     public void setGridY(int y) { this.gridY = y; }
 
     public AbilityData build(){
-        return new AbilityData(id, name, description, cost, prerequisites, conflicts, kingdom, gridX, gridY);
+        return new AbilityData(id, name, description, cost, prerequisites, conflicts, kingdom, gridX, gridY, type, actionId);
     }
 }

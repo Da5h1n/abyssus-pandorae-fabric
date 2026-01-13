@@ -1,5 +1,7 @@
 package abyssus.pandorae.networking;
 
+import abyssus.pandorae.AbyssusPandorae;
+import abyssus.pandorae.client.Skills.SkillActions;
 import abyssus.pandorae.component.Kingdom;
 import abyssus.pandorae.component.ModComponents;
 import abyssus.pandorae.gui.stats.AbilityData;
@@ -17,10 +19,15 @@ import java.util.List;
 
 public class ModNetworking {
     public static void register() {
-        // register Kingdom selection payload
+        // C2S Payloads
         PayloadTypeRegistry.playC2S().register(KingdomSelectPayload.ID, KingdomSelectPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(AbilityPurchasePayload.ID, AbilityPurchasePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(AbilityActionPayload.ID, AbilityActionPayload.CODEC);
+        // S2C Payloads
+        PayloadTypeRegistry.playS2C().register(OpenKingdomScreenPayload.ID, OpenKingdomScreenPayload.CODEC);
 
-        //Handle kingdom selection payload
+
+        //Handle kingdom selection
         ServerPlayNetworking.registerGlobalReceiver(KingdomSelectPayload.ID, (payload, context) -> {
             context.server().execute(() -> {
                 ServerPlayerEntity player = context.player();
@@ -31,14 +38,12 @@ public class ModNetworking {
 
                 KingdomTagManager.updatePlayerDisplay(player, selectedKingdom, component.getSoulState());
                 // send a message to the player confirming it worked
-                context.player().sendMessage(Text.translatable("abyssus-pandorae.choose_kingdom.message").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
+                player.sendMessage(Text.translatable("abyssus-pandorae.choose_kingdom.message").append(Text.translatable(selectedKingdom.getTranslationKey()).formatted(Formatting.AQUA)), false);
                 ModComponents.KINGDOM.sync(player);
             });
         });
 
-        //register client purchase payload
-        PayloadTypeRegistry.playC2S().register(AbilityPurchasePayload.ID, AbilityPurchasePayload.CODEC);
-
+        // Handle Ability purchase
         ServerPlayNetworking.registerGlobalReceiver(AbilityPurchasePayload.ID, ((payload, context) -> {
             context.server().execute(()-> {
                 var player = context.player();
@@ -56,31 +61,53 @@ public class ModNetworking {
 
                 if (ability == null) return;
 
-                boolean prereqMet = ability.prerequisites().isEmpty() ||
-                        ability.prerequisites().stream().allMatch(component::hasAbility);
+                boolean prereqMet = ability.prerequisites().isEmpty() || ability.prerequisites().stream().allMatch(component::hasAbility);
                 boolean hasFaithThreshold = component.getFaith() >= ability.cost();
                 boolean hasConflict = ability.conflicts() != null && ability.conflicts().stream().anyMatch(component::hasAbility);
 
                 if (prereqMet && hasFaithThreshold && !hasConflict && !component.hasAbility(slotId)) {
                     component.purchaseAbility(slotId);
+
+                    SkillActions.refreshAttributes(player);
+
                     player.sendMessage(Text.translatable("text.abyssus-pandorae.prefix").formatted(Formatting.GOLD).append(Text.translatable("text.abyssus-pandorae.ability_mastered", ability.name()).formatted(Formatting.GREEN)), true);
+
+                    ModComponents.KINGDOM.sync(player);
                 }
             });
         }));
 
-        // register the S2C packet
-        PayloadTypeRegistry.playS2C().register(OpenKingdomScreenPayload.ID, OpenKingdomScreenPayload.CODEC);
+        // Handle Ability Use
+        ServerPlayNetworking.registerGlobalReceiver(AbilityActionPayload.ID, ((payload, context) -> {
+            context.server().execute(() -> {
+                ServerPlayerEntity player = context.player();
+                var component = ModComponents.KINGDOM.get(player);
+                String actionId = payload.actionId();
 
+                // Does the player actually own a skill that uses this action?
+                boolean hasAbility = component.getPurchasedAbilities().stream().map(AbilityLoader::get).anyMatch(data -> data != null && data.actionId().equals(actionId));
+
+                if (hasAbility) {
+                    SkillActions.execute(actionId, player);
+                } else {
+                    AbyssusPandorae.LOGGER.warn("Player {} tried to use unowned ability: {}", player.getName().getString(), actionId);
+                }
+            });
+        }));
+
+        // Handle Player Join
         ServerPlayConnectionEvents.JOIN.register(((handler, sender, server) -> {
             server.execute(() -> {
                 ServerPlayerEntity player = handler.getPlayer();
                 var component = ModComponents.KINGDOM.get(player);
-                Kingdom currentKingdom = component.getKingdom();
 
-                KingdomTagManager.updatePlayerDisplay(player, currentKingdom, component.getSoulState());
+                KingdomTagManager.updatePlayerDisplay(player, component.getKingdom(), component.getSoulState());
+
+                // Refresh attribues on join
+                SkillActions.refreshAttributes(player);
 
                 // If they havent picked a kingdom (the default "none"), tell them to open the screen
-                if (currentKingdom == Kingdom.NONE) {
+                if (component.getKingdom() == Kingdom.NONE) {
                     ServerPlayNetworking.send(player, new OpenKingdomScreenPayload());
                 }
             });
@@ -89,11 +116,9 @@ public class ModNetworking {
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive)-> {
             var component = ModComponents.KINGDOM.get(newPlayer);
 
-            KingdomTagManager.updatePlayerDisplay(
-                    newPlayer,
-                    component.getKingdom(),
-                    component.getSoulState()
-            );
+            KingdomTagManager.updatePlayerDisplay(newPlayer, component.getKingdom(), component.getSoulState());
+
+            SkillActions.refreshAttributes(newPlayer);
         });
     }
 }

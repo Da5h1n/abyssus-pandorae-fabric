@@ -2,7 +2,10 @@ package abyssus.pandorae.client;
 
 import abyssus.pandorae.component.Kingdom;
 import abyssus.pandorae.component.ModComponents;
+import abyssus.pandorae.networking.AbilityActionPayload;
+import abyssus.pandorae.util.AbilityLoader;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -72,8 +75,14 @@ public class AbilityKeybinds {
     }
 
     private static void triggerAbility(MinecraftClient client,String slotId) {
-        // SEND packet to server "Player used slot_1"
-        // server checks kingdom and performs the correct action
-        client.player.sendMessage(Text.literal("Triggered Ability in: " + slotId), true);
+        var component = ModComponents.KINGDOM.get(client.player);
+
+        var abilityData = AbilityLoader.get(slotId);
+
+        if (abilityData != null && abilityData.actionId() != null) {
+            ClientPlayNetworking.send(new AbilityActionPayload(abilityData.actionId()));
+
+            client.player.sendMessage(Text.literal("Triggered: " + abilityData.name()).formatted(Formatting.GREEN), true);
+        }
     }
 }
