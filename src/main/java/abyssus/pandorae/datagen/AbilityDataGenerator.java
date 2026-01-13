@@ -76,8 +76,8 @@ public class AbilityDataGenerator implements DataProvider {
         add(builders, "slot_30", "slot_30", "TBD", 20, List.of("slot_15"), List.of("slot_31"), "left");
         add(builders, "slot_31", "slot_31", "TBD", 20, List.of("slot_15"), List.of("slot_30"), "left");
         // TEST PLACHOLDER BELOW:
-        add(builders, "slot_1", "Vitality", "Increases Max Health", 20, List.of(), List.of(), "left", AbilityData.AbilityType.PASSIVE, "health_boost");
-        add(builders, "slot_2", "Quick Dash", "Burst Forward", 20, List.of("slot_1"), List.of(), "left", AbilityData.AbilityType.ACTIVE, "dash");
+        add(builders, "slot_1", "Vitality", "Increases Max Health", 20, List.of(), List.of(), "center", AbilityData.AbilityType.PASSIVE, "health_boost");
+        add(builders, "slot_2", "Quick Dash", "Burst Forward", 20, List.of("slot_1"), List.of(), "center", AbilityData.AbilityType.ACTIVE, "dash");
 
 
         AbilityLayoutProvider layoutProvider = new AbilityLayoutProvider();
