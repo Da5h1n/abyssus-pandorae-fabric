@@ -9,25 +9,27 @@ public class AbilityLayoutProvider {
     private final Map<String, Integer> branchWidths = new HashMap<>();
 
     public void generateLayout(List<AbilityDataBuilder> builders) {
-        // Find root nodes (no prerequisites)
-        List<AbilityDataBuilder> roots = builders.stream()
-                .filter(b -> b.getPrerequisites().isEmpty())
-                .toList();
+        Map<String, List<AbilityDataBuilder>> kingdomGroups = builders.stream().collect(Collectors.groupingBy(AbilityDataBuilder::getKingdom));
 
-        int totalTreeWidth = 0;
-        for (AbilityDataBuilder root : roots) {
-            totalTreeWidth += calculateWidth(root, builders) + 2;
-        }
-        totalTreeWidth -= 2;
+        kingdomGroups.forEach((kingdom, kingdomBuiders) -> {
+            branchWidths.clear();
 
-        int currentX = -(totalTreeWidth / 2);
+            List<AbilityDataBuilder> roots = kingdomBuiders.stream().filter(b -> b.getPrerequisites().isEmpty()).toList();
 
-        for (AbilityDataBuilder root : roots) {
-            int rootWidth = calculateWidth(root, builders);
+            int totalTreeWidth = 0;
+            for (AbilityDataBuilder root : roots) {
+                totalTreeWidth += calculateWidth(root, kingdomBuiders) + 2;
+            }
+            if (!roots.isEmpty()) totalTreeWidth -= 2;
 
-            assignCoords(root, builders, currentX + (rootWidth / 2), 0);
-            currentX += rootWidth + 2;
-        }
+            int currentX = -(totalTreeWidth / 2);
+
+            for (AbilityDataBuilder root : roots) {
+                int rootWidth = calculateWidth(root, kingdomBuiders);
+                assignCoords(root, kingdomBuiders, currentX + (rootWidth / 2), 0);
+                currentX += rootWidth + 2;
+            }
+        });
     }
 
     private int calculateWidth(AbilityDataBuilder node, List<AbilityDataBuilder> all) {

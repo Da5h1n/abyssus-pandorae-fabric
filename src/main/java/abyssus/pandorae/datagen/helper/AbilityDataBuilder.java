@@ -38,4 +38,8 @@ public class AbilityDataBuilder {
     public AbilityData build(){
         return new AbilityData(id, name, description, cost, prerequisites, conflicts, kingdom, gridX, gridY, type, actionId);
     }
+
+    public String getKingdom() {
+        return kingdom;
+    }
 }
